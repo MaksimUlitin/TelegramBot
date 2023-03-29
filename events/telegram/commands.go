@@ -1,12 +1,12 @@
 package telegram
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/url"
 	"strings"
 
-	//	e "github.com/MaksimUlitin/cliens/l"
 	e "github.com/MaksimUlitin/error"
 	"github.com/MaksimUlitin/storage"
 )
@@ -17,57 +17,55 @@ const (
 	StartCmd = "/start"
 )
 
-func (p *Processor) doCmd(Text string, ChatID int, Username string) error {
+func (p *Processor) doCmd(text string, ChatID int, username string) error {
 
-	Text = strings.TrimSpace(Text)
+	text = strings.TrimSpace(text)
 
-	log.Printf("got new command `%s` from `%s", Text, Username)
+	log.Printf("got new command `%s` from `%s", text, username)
 
-	if isAddCmd(Text) {
-		return p.savePage(ChatID, Text, Username)
+	if isAddCmd(text) {
+		return p.savePage(ChatID, text, username)
 	}
 
-	switch Text {
+	switch text {
 	case RmdCmd:
-		return p.sendRandom(ChatID, Username)
+		return p.sendRandom(ChatID, username)
 
 	case HelpCmd:
 		return p.sendHelp(ChatID)
 
 	case StartCmd:
-		return p.sendHEllo(ChatID)
+		return p.sendHello(ChatID)
 
 	default:
-		p.tg.SendMessage(ChatID, msgUnknownCommand)
+		return p.tg.SendMessage(ChatID, msgUnknownCommand)
 	}
-
-	return nil
 
 }
 
-func (p *Processor) savePage(ChatID int, pageURL string, Username string) (err error) {
+func (p *Processor) savePage(chatID int, pageURL string, username string) (err error) {
 	defer func() { err = e.Wrapiferr("can't do command: save page ", err) }()
 
 	page := &storage.Page{
 		URL:      pageURL,
-		Username: Username,
+		UserName: username,
 	}
 
-	isExists, err := p.storage.IsExists(page)
+	isExists, err := p.storage.IsExists(context.Background(), page)
 
 	if err != nil {
 		return err
 	}
 
 	if isExists {
-		return p.tg.SendMessage(ChatID, msgAlreadyExists)
+		return p.tg.SendMessage(chatID, msgAlreadyExists)
 	}
 
-	if err := p.storage.Save(page); err != nil {
+	if err := p.storage.Save(context.Background(), page); err != nil {
 		return err
 	}
 
-	if err := p.tg.SendMessage(ChatID, msgSaved); err != nil {
+	if err := p.tg.SendMessage(chatID, msgSaved); err != nil {
 		return err
 
 	}
@@ -76,48 +74,48 @@ func (p *Processor) savePage(ChatID int, pageURL string, Username string) (err e
 
 }
 
-func (p *Processor) sendRandom(ChatID int, Username string) (err error) {
+func (p *Processor) sendRandom(chatID int, username string) (err error) {
 	defer func() { err = e.Wrapiferr("can't do command: can't send random", err) }()
 
-	page, err := p.storage.PickRandom(Username)
+	page, err := p.storage.PickRandom(context.Background(), username)
 
-	if err != nil && !errors.Is(err, storage.ErrNoSevedPages) {
+	if err != nil && !errors.Is(err, storage.ErrNoSavedPages) {
 		return err
 	}
 
-	if errors.Is(err, storage.ErrNoSevedPages) {
-		return p.tg.SendMessage(ChatID, msgNoSavedPages)
+	if errors.Is(err, storage.ErrNoSavedPages) {
+		return p.tg.SendMessage(chatID, msgNoSavedPages)
 	}
 
-	if err := p.tg.SendMessage(ChatID, page.URL); err != nil {
+	if err := p.tg.SendMessage(chatID, page.URL); err != nil {
 
 		return nil
 
 	}
 
-	return p.storage.Remove(page)
+	return p.storage.Remove(context.Background(), page)
 
 }
 
-func (p *Processor) sendHelp(ChatID int) error {
+func (p *Processor) sendHelp(chatID int) error {
 
-	return p.tg.SendMessage(ChatID, msgHelp)
-
-}
-
-func (p *Processor) sendHEllo(ChatID int) error {
-
-	return p.tg.SendMessage(ChatID, msgHello)
+	return p.tg.SendMessage(chatID, msgHelp)
 
 }
 
-func isAddCmd(Text string) bool {
+func (p *Processor) sendHello(chatID int) error {
 
-	return isUrl(Text)
+	return p.tg.SendMessage(chatID, msgHello)
+
 }
 
-func isUrl(Text string) bool {
-	u, err := url.Parse(Text)
+func isAddCmd(text string) bool {
+
+	return isUrl(text)
+}
+
+func isUrl(text string) bool {
+	u, err := url.Parse(text)
 
 	return err == nil && u.Host != ""
 }

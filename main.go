@@ -1,25 +1,31 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"log"
-
 	tgClient "github.com/MaksimUlitin/cliens"
 	"github.com/MaksimUlitin/consumer/eventconsumer"
-
 	"github.com/MaksimUlitin/events/telegram"
-	"github.com/MaksimUlitin/storage/files"
+	"github.com/MaksimUlitin/storage/sqlite"
+	"log"
 )
 
 const (
-	tgBotHost   = "api.telegram.org"
-	storagePath = "files_storage"
-	batchSize   = 100
+	tgBotHost         = "api.telegram.org"
+	sqliteStoragePath = "data/sqlite/storage.db"
+	batchSize         = 100
 )
 
 func main() {
+	s, err := sqlite.New(sqliteStoragePath)
+	if err != nil {
+		log.Fatal("can`t connect to storage: ", err)
+	}
 
-	eventsProcessor := telegram.New(tgClient.New(tgBotHost, mustToken()), files.New(storagePath))
+	if err := s.Init(context.TODO()); err != nil {
+		log.Fatal("can`t init storage: ", err)
+	}
+	eventsProcessor := telegram.New(tgClient.New(tgBotHost, mustToken()), s)
 
 	log.Print("servec started")
 
@@ -36,7 +42,7 @@ func mustToken() string {
 	token := flag.String(
 		"tg-bot-token",
 		"",
-		"token for acces to telegram-bot",
+		"token for access to telegram-bot",
 	)
 
 	flag.Parse()

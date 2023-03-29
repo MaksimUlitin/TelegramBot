@@ -1,39 +1,39 @@
 package storage
 
 import (
+	"context"
 	"crypto/sha1"
 	"errors"
 	"fmt"
 	"io"
 
 	e "github.com/MaksimUlitin/error"
-	//e "github.com/MaksimUlitin/cliens/l"
 )
 
 type Storage interface {
-	Save(p *Page) error
-	PickRandom(Username string) (*Page, error)
-	Remove(P *Page) error
-	IsExists(P *Page) (bool, error)
+	Save(ctx context.Context, p *Page) error
+	PickRandom(ctx context.Context, userName string) (*Page, error)
+	Remove(ctx context.Context, p *Page) error
+	IsExists(ctx context.Context, p *Page) (bool, error)
 }
 
 var (
-	ErrNoSevedPages = errors.New("no seved pages")
+	ErrNoSavedPages = errors.New("no saved pages")
 )
 
 type Page struct {
 	URL      string
-	Username string
+	UserName string
 }
 
 func (p Page) Hash() (string, error) {
-	h := sha1.New() //h:= sha1.New() можно и через sha1
+	h := sha1.New()
 
 	if _, err := io.WriteString(h, p.URL); err != nil {
 		return "", e.Wrap("can't calculate hash", err)
 	}
 
-	if _, err := io.WriteString(h, p.Username); err != nil {
+	if _, err := io.WriteString(h, p.UserName); err != nil {
 		return "", e.Wrap("can't calculate hash", err)
 	}
 

@@ -23,15 +23,15 @@ const (
 	sendmessageMethod = "sendMessage"
 )
 
-func New(host string, token /*basaPath*/ string) *Client {
+func New(host string, token string) *Client {
 	return &Client{
 		host:     host,
-		basePath: NewBasePath(token),
+		basePath: newBasePath(token),
 		client:   http.Client{},
 	}
 }
 
-func NewBasePath(token string) string {
+func newBasePath(token string) string {
 	return "bot" + token
 }
 
@@ -42,7 +42,7 @@ func (c *Client) Updates(offset int, limit int) (updates []Updates, err error) {
 	q.Add("offset", strconv.Itoa(offset))
 	q.Add("limit", strconv.Itoa(limit))
 
-	datas, err := c.doRequest(GetUpdatesMethod, q)
+	data, err := c.doRequest(GetUpdatesMethod, q)
 
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (c *Client) Updates(offset int, limit int) (updates []Updates, err error) {
 
 	var res UpdateRespouns
 
-	if err := json.Unmarshal(datas, &res); err != nil {
+	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, err
 	}
 

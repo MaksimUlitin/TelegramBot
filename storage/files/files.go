@@ -14,7 +14,7 @@ import (
 )
 
 type Storage struct {
-	basePath string 
+	basePath string
 }
 
 const defaultPerm = 0774
@@ -26,7 +26,7 @@ func New(basePath string) Storage {
 func (s Storage) Save(page *storage.Page) (err error) {
 	defer func() { err = e.Wrapiferr("can't save page", err) }()
 
-	fPath := filepath.Join(s.basePath, page.Username)
+	fPath := filepath.Join(s.basePath, page.UserName)
 
 	if err := os.MkdirAll(fPath, defaultPerm); err != nil {
 		return err
@@ -57,16 +57,13 @@ func (s Storage) PickRandom(userName string) (page *storage.Page, err error) {
 
 	path := filepath.Join(s.basePath, userName)
 
-	// 1. check user folder
-	// 2. create folder
-
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(files) == 0 {
-		return nil, storage.ErrNoSevedPages
+		return nil, storage.ErrNoSavedPages
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -83,7 +80,7 @@ func (s Storage) Remove(p *storage.Page) error {
 		return e.Wrap("can't remove file", err)
 	}
 
-	path := filepath.Join(s.basePath, p.Username, fileName)
+	path := filepath.Join(s.basePath, p.UserName, fileName)
 
 	if err := os.Remove(path); err != nil {
 		msg := fmt.Sprintf("can't remove file %s", path)
@@ -100,7 +97,7 @@ func (s Storage) IsExists(p *storage.Page) (bool, error) {
 		return false, e.Wrap("can't check if file exists", err)
 	}
 
-	path := filepath.Join(s.basePath, p.Username, fileName)
+	path := filepath.Join(s.basePath, p.UserName, fileName)
 
 	switch _, err = os.Stat(path); {
 	case errors.Is(err, os.ErrNotExist):

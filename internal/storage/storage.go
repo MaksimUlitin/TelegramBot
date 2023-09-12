@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	e "github.com/MaksimUlitin/error"
+	e "github.com/MaksimUlitin/internal/error"
 )
 
 type Storage interface {

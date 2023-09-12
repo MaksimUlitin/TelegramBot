@@ -3,19 +3,18 @@ package telegram
 import (
 	"errors"
 
-	client "github.com/MaksimUlitin/cliens"
-	e "github.com/MaksimUlitin/error"
+	client "github.com/MaksimUlitin/internal/cliens"
+	e "github.com/MaksimUlitin/internal/error"
 
-	//	e "github.com/MaksimUlitin/cliens/l"
-	"github.com/MaksimUlitin/events"
-	"github.com/MaksimUlitin/storage"
+	"github.com/MaksimUlitin/internal/storage"
+	"github.com/MaksimUlitin/pkg/models"
+	"github.com/MaksimUlitin/pkg/models/events"
 )
-
 
 type Processor struct {
 	tg      *client.Client
 	offset  int
-	storage storage.Storage 
+	storage storage.Storage
 }
 
 type Meta struct {
@@ -87,7 +86,7 @@ func meta(event events.Event) (Meta, error) {
 	return res, nil
 }
 
-func event(upd client.Updates) events.Event {
+func event(upd models.Updates) events.Event {
 	updType := fetchType(upd)
 
 	res := events.Event{
@@ -105,7 +104,7 @@ func event(upd client.Updates) events.Event {
 	return res
 }
 
-func fetchText(upd client.Updates) string {
+func fetchText(upd models.Updates) string {
 	if upd.Message == nil {
 		return ""
 	}
@@ -113,7 +112,7 @@ func fetchText(upd client.Updates) string {
 	return upd.Message.Text
 }
 
-func fetchType(upd client.Updates) events.Type {
+func fetchType(upd models.Updates) events.Type {
 	if upd.Message == nil {
 		return events.Unknown
 	}

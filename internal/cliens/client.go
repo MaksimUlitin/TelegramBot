@@ -8,8 +8,7 @@ import (
 	"path"
 	"strconv"
 
-	e "github.com/MaksimUlitin/error"
-	//	e "github.com/MaksimUlitin/cliens/l"
+	e "github.com/MaksimUlitin/internal/error"
 )
 
 type Client struct {

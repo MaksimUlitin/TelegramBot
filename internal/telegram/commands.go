@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"strings"
 
-	e "github.com/MaksimUlitin/error"
-	"github.com/MaksimUlitin/storage"
+	e "github.com/MaksimUlitin/internal/error"
+	"github.com/MaksimUlitin/internal/storage"
 )
 
 const (

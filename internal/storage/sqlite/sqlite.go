@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/MaksimUlitin/storage"
+	"github.com/MaksimUlitin/internal/storage"
 	_ "github.com/mattn/go-sqlite3"
 )
 

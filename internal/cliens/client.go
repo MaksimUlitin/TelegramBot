@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	e "github.com/MaksimUlitin/internal/error"
+	"github.com/MaksimUlitin/pkg/models"
 )
 
 type Client struct {
@@ -34,7 +35,7 @@ func newBasePath(token string) string {
 	return "bot" + token
 }
 
-func (c *Client) Updates(offset int, limit int) (updates []Updates, err error) {
+func (c *Client) Updates(offset int, limit int) (updates []models.Updates, err error) {
 	defer func() { err = e.Wrapiferr("can't get updates", err) }()
 
 	q := url.Values{}
@@ -47,7 +48,7 @@ func (c *Client) Updates(offset int, limit int) (updates []Updates, err error) {
 		return nil, err
 	}
 
-	var res UpdateRespouns
+	var res models.UpdateRespouns
 
 	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, err

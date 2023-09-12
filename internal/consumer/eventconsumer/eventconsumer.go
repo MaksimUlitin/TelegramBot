@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/MaksimUlitin/events"
+	"github.com/MaksimUlitin/pkg/models/events"
 )
 
 type Consumer struct {
